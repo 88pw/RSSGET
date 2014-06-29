@@ -24,7 +24,7 @@
 		// 受け渡し処理
 		$.ajax({
 			type: 'POST',
-			url: 'rss_get.php',
+			url: 'php/rss_get.php',
 			async: false,
 			data:{
 				site         : option.site,
