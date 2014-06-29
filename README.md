@@ -1,6 +1,6 @@
 RSSGET
 =================================
-  複数RSS（xml）の取得
+  複数RSS（xml）の取得  
   ※atomなどの画像は現在考慮中。RDFも…
 
 Setting
@@ -17,16 +17,16 @@ options
 ---------------------------------
 
 ###	site
-	*default*  
+	default  
 	site         : ['']  
-	*how_to*  
+	how_to  
 	site         : ['http://test.com/xxx.xml','http://test.com/yyy.xml']  
 
 
 ###	link_show
-	__default__  
+	default  
 	link_show    : true  
-	__how_to__  
+	how_to  
 	link_show    : true or false  
 
 
