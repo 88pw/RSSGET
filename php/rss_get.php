@@ -17,7 +17,8 @@ foreach ($_POST['site'] as $url){
 
 	// コンテンツ取得して文字コード変更
 	$content = file_get_contents($url);
-	$content = str_replace( '<link>','<links>',$content );
+	// linkの閉じタグがないの回避
+	$content = preg_replace('/<link>(.*)/', '<links>$1</links>', $content);
 	$content = mb_convert_encoding($content, 'HTML-ENTITIES', 'ASCII, JIS, UTF-8, EUC-JP, SJIS');
 	
 	// DOMツリーを配列に格納
@@ -30,21 +31,22 @@ foreach ($_POST['site'] as $url){
 
 	// $itemsの配列から値を取得
 	foreach ($items as $item) {
-		
 		$link    = $item->xpath( '//item/links/text()' );
 		$title   = $item->xpath( '//item/title' );
-		$desc    = $item->xpath( '//item/links/description' );
-		$pubdate = $item->xpath( '//item/links/pubdate' );
+		$desc    = $item->xpath( '//item/description' );
+		$pubdate = $item->xpath( '//item/pubdate' );
 		$date    = date($_POST['date_fmt'], strtotime($pubdate[$i][0]));
 		// 日付＋秒で並び替えるためのやつ
 		$sort_pd = date('Y.m.d.s', strtotime($pubdate[$i][0]));
 
 		//　あとで連想配列の並び替えをするために配列に格納
-		if( strlen($title[$i][0]) != 0 && $i <= ($cnt-1) )
-
+		if( strlen($title[$i][0]) != 0 && $i <= ($cnt-1) ){
 			// なんか重くなりそうなので、descriptionを切り出してから格納
-			if( strlen($desc[$i]) > $_POST['desc_lengths']) $desc[$i] = mb_substr($desc[$i],0,$_POST['desc_lengths'],'UTF-8').'…';
-			else $desc[$i] = mb_substr($desc[$i],0,$_POST['desc_lengths'],'UTF-8');
+			if( strlen($desc[$i]) >= $_POST['desc_lengths'] ){
+				$desc[$i] = mb_substr($desc[$i],0,$_POST['desc_lengths'],'UTF-8').'…';
+			}else{
+				$desc[$i] = mb_substr($desc[$i],0,$_POST['desc_lengths'],'UTF-8');
+			}
 
 			// それでは、格納します
 			$ds[$ary_cnt] = array(
@@ -55,10 +57,11 @@ foreach ($_POST['site'] as $url){
 				// 日付＋秒で並び替えるために格納
 				'pubdate'     => $sort_pd
 			);
-		$i ++;
-		//複数ループ時に配列を何番まで生成したか記憶しておく
-		$ary_cnt ++;
+			$i ++;
+			//複数ループ時に配列を何番まで生成したか記憶しておく
+			$ary_cnt ++;
 		}
+	}
 }
 
 if( $_POST['sort_for'] == 'title' ){
@@ -85,7 +88,6 @@ for ($i=0; $i < $kiji_cnt; $i++){
 	t_or_f($_POST['title_show'],'<p>'.$ds[$i]['title'].'</p>');
 	t_or_f($_POST['link_show'],'</a>');
 	t_or_f($_POST['desc_show'],'<p>'.$ds[$i]['description'].'</p>');
-	// echo $ds[$i]['pubdate']; //pubdateの検証用
 	echo '</li>';}
 echo '</ul>';
 
