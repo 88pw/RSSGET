@@ -1,32 +1,28 @@
 <!DOCTYPE html>
 <html lang="ja">
-<head>
-    <meta charset="UTF-8">
-    <title>Document</title>
-    
-</head>
+
+	<head>
+	    <meta charset="UTF-8">
+	    <title>Document</title>
+	    <script type="text/javascript" src="//ajax.googleapis.com/ajax/libs/jquery/1.10.2/jquery.min.js"></script>
+		<script type="text/javascript" src="js/jquery.rssget.js"></script>
+	</head>
+
 <body>
 
-<script type="text/javascript" src="//ajax.googleapis.com/ajax/libs/jquery/1.10.2/jquery.min.js"></script>
-<script type="text/javascript" src="js/jquery.rssget.js"></script>
-<div class="fwrap">
-	<div id="feeds">
+	<div class="fwrap">
+		<div id="feeds"></div>
 	</div>
-</div>
-<script>
-$('#feeds').RSSGet({
-	site : [
-	'http://tepito.jp/rssFolder/G000000025.xml',
-	'http://tepito.jp/rssFolder/G000000036.xml'
-	],
-	sort_to :'ascend',
-	count   : 2,
-	desc_show : 0
-});
-</script>
-
-
-
+	
+	<script>
+	$('#feeds').RSSGet({
+		site : [
+		'http://feedblog.ameba.jp/rss/ameblo/ebizo-ichikawa/rss20.xml'
+		],
+		sort_to :'ascend',
+		count   : 15
+	});
+	</script>
 
 </body>
 </html>
