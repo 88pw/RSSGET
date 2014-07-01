@@ -19,8 +19,8 @@ foreach ($_POST['site'] as $url){
 	$content = file_get_contents($url);
 	// linkの閉じタグがないの回避
 	$content = preg_replace('/<link>(.*)/', '<links>$1</links>', $content);
+	$content = preg_replace('/\]\]>/', '', $content);
 	$content = mb_convert_encoding($content, 'HTML-ENTITIES', 'ASCII, JIS, UTF-8, EUC-JP, SJIS');
-	
 	// DOMツリーを配列に格納
 	$dom = @DOMDocument::loadHTML($content);
 	$xml = simplexml_import_dom($dom);
@@ -37,17 +37,16 @@ foreach ($_POST['site'] as $url){
 		$pubdate = $item->xpath( '//item/pubdate' );
 		$date    = date($_POST['date_fmt'], strtotime($pubdate[$i][0]));
 		// 日付＋秒で並び替えるためのやつ
-		$sort_pd = date('Y.m.d.s', strtotime($pubdate[$i][0]));
+		$sort_pd = date('Y.m.d.H.i.s', strtotime($pubdate[$i][0]));
 
 		//　あとで連想配列の並び替えをするために配列に格納
-		if( strlen($title[$i][0]) != 0 && $i <= ($cnt-1) ){
 			// なんか重くなりそうなので、descriptionを切り出してから格納
 			if( strlen($desc[$i]) >= $_POST['desc_lengths'] ){
 				$desc[$i] = mb_substr($desc[$i],0,$_POST['desc_lengths'],'UTF-8').'…';
 			}else{
 				$desc[$i] = mb_substr($desc[$i],0,$_POST['desc_lengths'],'UTF-8');
 			}
-
+	
 			// それでは、格納します
 			$ds[$ary_cnt] = array(
 				'title'       => $title[$i],
@@ -60,7 +59,6 @@ foreach ($_POST['site'] as $url){
 			$i ++;
 			//複数ループ時に配列を何番まで生成したか記憶しておく
 			$ary_cnt ++;
-		}
 	}
 }
 
@@ -82,13 +80,18 @@ else $kiji_cnt = $cnt;
 // 記事結果の出力
 echo '<ul>';
 for ($i=0; $i < $kiji_cnt; $i++){
-	echo '<li>';
-	t_or_f($_POST['date_show'],'<span>'.$ds[$i]['date'].'</span>');
-	t_or_f($_POST['link_show'],'<a href="'.$ds[$i]['link'].'" target="'.$_POST['link_target'].'">');
-	t_or_f($_POST['title_show'],'<p>'.$ds[$i]['title'].'</p>');
-	t_or_f($_POST['link_show'],'</a>');
-	t_or_f($_POST['desc_show'],'<p>'.$ds[$i]['description'].'</p>');
-	echo '</li>';}
+	if( strlen($ds[$i]['title']) != 0 ){
+		echo '<li>';
+		t_or_f($_POST['date_show'],'<span>'.$ds[$i]['date'].'</span>');
+		t_or_f($_POST['link_show'],'<a href="'.$ds[$i]['link'].'" target="'.$_POST['link_target'].'">');
+		t_or_f($_POST['title_show'],'<p>'.$ds[$i]['title'].'</p>');
+		t_or_f($_POST['link_show'],'</a>');
+		t_or_f($_POST['desc_show'],'<p>'.$ds[$i]['description'].'</p>');
+		echo '</li>';
+	}else{
+		$kiji_cnt ++ ;
+	}
+}
 echo '</ul>';
 
 ?>
