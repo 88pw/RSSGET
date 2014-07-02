@@ -3,6 +3,12 @@
 $ds = array();
 $cnt = $_POST['count'];
 $ary_cnt = 0;
+$replace_txt = array(
+	array('/<.*?>(.*)<\/.*?>/','$1'),
+	array('/<font\s.*?>(.*)<\/font>/','$1'),
+	array('/&nbsp;/',''),
+	array('/<img(.*?)>/','')
+);
 
 // 出力時に echo 書くの面倒くさいから
 function t_or_f($atai,$return){	if($atai == true) echo $return;	}
@@ -19,7 +25,8 @@ foreach ($_POST['site'] as $url){
 	$content = file_get_contents($url);
 	// linkの閉じタグがないの回避
 	$content = preg_replace('/<link>(.*)/', '<links>$1</links>', $content);
-	$content = preg_replace('/\]\]>/', '', $content);
+	$content = preg_replace('/<!(.*)\[CDATA\[ <p(.*)>/', '', $content);
+	$content = preg_replace('/(.*)\]\]>/', '', $content);
 	$content = mb_convert_encoding($content, 'HTML-ENTITIES', 'ASCII, JIS, UTF-8, EUC-JP, SJIS');
 	// DOMツリーを配列に格納
 	$dom = @DOMDocument::loadHTML($content);
@@ -39,6 +46,8 @@ foreach ($_POST['site'] as $url){
 		// 日付＋秒で並び替えるためのやつ
 		$sort_pd = date('Y.m.d.H.i.s', strtotime($pubdate[$i][0]));
 
+		// replece_text内の文字列を処理する
+		foreach ($replace_txt as $val) $desc[$i] = preg_replace($val[0],$val[1],$desc[$i]);
 		//　あとで連想配列の並び替えをするために配列に格納
 			// なんか重くなりそうなので、descriptionを切り出してから格納
 			if( strlen($desc[$i]) >= $_POST['desc_lengths'] ){
@@ -63,7 +72,7 @@ foreach ($_POST['site'] as $url){
 }
 
 if( $_POST['sort_for'] == 'title' ){
-	// タイトル順にソート（TierdWorks用） titleでソートする場合、SORT_STRINGが必要になる
+	// タイトル順にソート（pubdateを利用せずタイトルに日付を入れたい時用） titleでソートする場合、SORT_STRINGが必要になる
 	foreach($ds as $key => $val) $sort[$key] = $val['title'];
 	array_multisort($sort, a_or_d($_POST['sort_to']),SORT_STRING, $ds);
 
