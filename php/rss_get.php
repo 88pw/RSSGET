@@ -25,14 +25,15 @@ foreach ($_POST['site'] as $url){
 	$content = file_get_contents($url);
 	// linkの閉じタグがないの回避
 	$content = preg_replace('/<link>(.*)/', '<links>$1</links>', $content);
+
 	$content = preg_replace('/<!(.*)\[CDATA\[ <p(.*)>/', '', $content);
-	$content = preg_replace('/(.*)\]\]>/', '', $content);
+	// $content = preg_replace('/(\]\]>)/', '', $content);
 	$content = mb_convert_encoding($content, 'HTML-ENTITIES', 'ASCII, JIS, UTF-8, EUC-JP, SJIS');
 	// DOMツリーを配列に格納
 	$dom = @DOMDocument::loadHTML($content);
 	$xml = simplexml_import_dom($dom);
 	$items = $xml->xpath('//item');
-	
+
 	// これはforeachの中じゃないとアカン
 	$i = 0;
 
@@ -57,14 +58,16 @@ foreach ($_POST['site'] as $url){
 			}
 	
 			// それでは、格納します
-			$ds[$ary_cnt] = array(
-				'title'       => $title[$i],
-				'link'        => $link[$i],
-				'description' => $desc[$i],
-				'date'        => $date,
-				// 日付＋秒で並び替えるために格納
-				'pubdate'     => $sort_pd
-			);
+			if(strlen($title[$i])!=0){
+				$ds[$ary_cnt] = array(
+					'title'       => $title[$i],
+					'link'        => $link[$i],
+					'description' => $desc[$i],
+					'date'        => $date,
+					// 日付＋秒で並び替えるために格納
+					'pubdate'     => $sort_pd
+				);
+			}
 			$i ++;
 			//複数ループ時に配列を何番まで生成したか記憶しておく
 			$ary_cnt ++;
@@ -89,7 +92,6 @@ else $kiji_cnt = $cnt;
 // 記事結果の出力
 echo '<ul>';
 for ($i=0; $i < $kiji_cnt; $i++){
-	if( strlen($ds[$i]['title']) != 0 ){
 		echo '<li>';
 		t_or_f($_POST['date_show'],'<span>'.$ds[$i]['date'].'</span>');
 		t_or_f($_POST['link_show'],'<a href="'.$ds[$i]['link'].'" target="'.$_POST['link_target'].'">');
@@ -97,9 +99,6 @@ for ($i=0; $i < $kiji_cnt; $i++){
 		t_or_f($_POST['link_show'],'</a>');
 		t_or_f($_POST['desc_show'],'<p>'.$ds[$i]['description'].'</p>');
 		echo '</li>';
-	}else{
-		$kiji_cnt ++ ;
-	}
 }
 echo '</ul>';
 
