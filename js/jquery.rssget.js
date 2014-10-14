@@ -8,7 +8,7 @@
 			link_target  : '_blank',
 			title_show   : true,
 			date_show    : true,
-			date_fmt     : 'Y年N月j日', 
+			date_fmt     : 'Y年m月d日', 
 			desc_show    : true,
 			desc_lengths : '25',
 			sort_for     : 'date',
@@ -39,7 +39,7 @@
 				sort_to      : option.sort_to,
 				count        : option.count
 			},
-			success:function(data){ target.append(data) },
+			success:function(data){ target.append(data); },
 			error:function(){ alert('can not read') }
 		});
 	}
